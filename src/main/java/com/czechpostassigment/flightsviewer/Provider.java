@@ -13,6 +13,9 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import org.springframework.web.client.HttpClientErrorException; // For error handling
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 @Service("Provider")
 public class Provider {
 
@@ -29,6 +32,7 @@ public class Provider {
         long UNIX_TIME = System.currentTimeMillis() / 1000L;
 
         try {
+            /*
 
             String url = UriComponentsBuilder.newInstance()
                     .scheme("https")
@@ -44,16 +48,23 @@ public class Provider {
             assert restTemplate != null;
 
             String data = restTemplate.getForObject(url, String.class);
+             */
+
+            ObjectMapper mapper = new ObjectMapper();
+            Path filename = Path.of("D:\\[00] Project Files\\FlightAssigment\\src\\main\\resources\\tempdata.json");
+            String data = Files.readString(filename);
 
             _Parsd = mapper.readTree(data);
             _Cache = data;
 
             System.out.println("Cache aktualizovana - " + UNIX_TIME);
             return _Cache;
-        } catch (JsonProcessingException e) {
-            System.out.println("Chyba pri cteni JSON souboru - " + e.getMessage());
+        //} catch (JsonProcessingException e) {
+        //    System.out.println("Chyba pri cteni JSON souboru - " + e.getMessage());
         } catch (HttpClientErrorException e) {
             System.err.println("Chyba pri zadani o JSON data: " + e.getStatusCode() + " " + e.getResponseBodyAsString());
+        } catch (java.io.IOException e) {
+            System.out.println("Chyba pri cteni JSON souboru - " + e.getMessage());
         } catch (RestClientException e) {
             System.out.println("Chyba pri odberu dat ze OpenSky site - " + e.getMessage());
         }
