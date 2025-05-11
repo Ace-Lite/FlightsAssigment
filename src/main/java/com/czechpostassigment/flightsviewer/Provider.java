@@ -32,8 +32,6 @@ public class Provider {
         long UNIX_TIME = System.currentTimeMillis() / 1000L;
 
         try {
-            /*
-
             String url = UriComponentsBuilder.newInstance()
                     .scheme("https")
                     .host(LINK)
@@ -48,11 +46,10 @@ public class Provider {
             assert restTemplate != null;
 
             String data = restTemplate.getForObject(url, String.class);
-             */
 
-            ObjectMapper mapper = new ObjectMapper();
-            Path filename = Path.of("D:\\[00] Project Files\\FlightAssigment\\src\\main\\resources\\tempdata.json");
-            String data = Files.readString(filename);
+            //ObjectMapper mapper = new ObjectMapper();
+            //Path filename = Path.of("D:\\[00] Project Files\\FlightAssigment\\src\\main\\resources\\tempdata.json");
+            //String data = Files.readString(filename);
 
             _Parsd = mapper.readTree(data);
             _Cache = data;
