@@ -1,7 +1,6 @@
 package com.czechpostassigment.flightsviewer;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ui.Model;
@@ -13,8 +12,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 @Controller
 public class WebController {
@@ -33,6 +30,11 @@ public class WebController {
             @RequestParam(name = "do", required = false) String doString,
             Model model) {
 
+        //
+        //  Filter dle výsledku
+        //
+
+
         if (letisteKod != null && !letisteKod.isBlank() &&
                 odString != null && !odString.isBlank() &&
                 doString != null && !doString.isBlank()) {
@@ -41,9 +43,6 @@ public class WebController {
             LocalDateTime datumDo;
 
             try {
-                // Parse date strings from request parameters
-                // The @DateTimeFormat annotation on method params is more for direct binding,
-                // here we parse manually since they are optional and we check presence first.
                 DateTimeFormatter requestParamFormatter = DateTimeFormatter.ofPattern("yyyyMMddHHmm");
                 datumOd = LocalDateTime.parse(odString, requestParamFormatter);
                 datumDo = LocalDateTime.parse(doString, requestParamFormatter);
@@ -55,7 +54,7 @@ public class WebController {
 
                 if (UnixOd > UnixDo) {
                     model.addAttribute("errorMessage", "Chyba: Datum 'od' nesmí být po datu 'do'.");
-                    return "odlety-page"; // Return to page with error
+                    return "odlety-page";
                 }
 
                 for (JsonNode node : Service._Parsd) {
@@ -96,6 +95,10 @@ public class WebController {
             } catch (Exception e) {
                 model.addAttribute("errorMessage", "Nastala neočekávaná chyba: " + e.getMessage());
             }
+
+        //
+        //  Celý list
+        //
         } else if (!Service._Parsd.isNull()) {
             model.addAttribute("departures", Service._Parsd);
             return "odlety-page";

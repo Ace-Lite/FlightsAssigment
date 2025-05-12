@@ -8,7 +8,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,11 +23,17 @@ public class Controller {
         this.Service = Service;
     }
 
+    //
+    //  API
+    //
+
+    // Format: ../api/v1/odlety
     @GetMapping(value = "/odlety", produces = MediaType.APPLICATION_JSON_VALUE)
     public String GetAPI_AllFlights() {
         return Service._Cache;
     }
 
+    // Format: ../api/v1/filter?letiste=kod&od=yyyyMMddHHmm&doyyyyMMddHHmm
     @GetMapping(value = "/filter", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> GetAPI_CertainFlights(
         @RequestParam("letiste") String letisteKod,
@@ -44,6 +49,10 @@ public class Controller {
         if (UnixOd > UnixDo) {
             return ResponseEntity.badRequest().body("Chyba: Datum 'od' nesmi byt po datu 'do'.");
         }
+
+        //
+        //  Filtrování
+        //
 
         for (JsonNode node : Service._Parsd) {
             if (!node.isObject()) {

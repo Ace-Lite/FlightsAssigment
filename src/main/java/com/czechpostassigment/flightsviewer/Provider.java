@@ -1,6 +1,5 @@
 package com.czechpostassigment.flightsviewer;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,18 +12,38 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import org.springframework.web.client.HttpClientErrorException; // For error handling
 
-import java.nio.file.Files;
-import java.nio.file.Path;
+//Pro import JSON souborů
+//import com.fasterxml.jackson.core.JsonProcessingException;
+//import java.nio.file.Files;
+//import java.nio.file.Path;
+
+/*
+ *
+ *   Pořizovatel dat
+ *
+ */
 
 @Service("Provider")
 public class Provider {
 
+    // Config
+
     private static final String LINK = "opensky-network.org";
     private static final String ICAO_ID = "LKPR";
 
-    public String   _Cache = null;
-    public JsonNode _Parsd = null;
     private final RestTemplate restTemplate;
+
+    // _Cache = String JSON
+    public String   _Cache = null;
+
+    // _Parsd = _Cache vytvoření JSON NODE
+    public JsonNode _Parsd = null;
+
+    /*
+    *
+    *   METODY
+    *
+    */
 
     @Scheduled(fixedRate = 3600)
     public String Receive()

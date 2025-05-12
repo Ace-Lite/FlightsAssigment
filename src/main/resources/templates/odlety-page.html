@@ -1,72 +1,94 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>Vyhledávání Odletů</title>
-    <style>
-        body { font-family: sans-serif; margin: 20px; }
-        .container { max-width: 800px; margin: auto; }
-        form label, form input { display: block; margin-bottom: 5px; }
-        form input[type="text"] { width: 200px; padding: 8px; margin-bottom: 15px; }
-        form button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
-        .error { color: red; margin-bottom: 15px;}
-        .no-results { margin-top: 20px; font-style: italic; }
-    </style>
-</head>
-<body>
-<div class="container">
-    <h1>Vyhledávání Odletů z Pražského Letiště</h1>
+    <head>
+        <meta charset="UTF-8">
+        <title>Vyhledávání Odletů</title>
+        <style>
+            body { font-family: sans-serif; margin: 20px; }
+            .container { max-width: 800px; margin: auto; }
+            form label, form input { display: block; margin-bottom: 5px; }
+            form input[type="text"] { width: 200px; padding: 8px; margin-bottom: 15px; }
+            form button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+            th { background-color: #f2f2f2; }
+            .error { color: red; margin-bottom: 15px;}
+            .no-results { margin-top: 20px; font-style: italic; }
+        </style>
+    </head>
 
-    <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+    <body>
+        <div class="container">
 
-    <form th:action="@{/odlety-web}" method="get">
-        <div>
-            <label for="letiste">Cílové letiště (kód):</label>
-            <input type="text" id="letiste" name="letiste" th:value="${param.letiste}" placeholder="např. PRG" required />
+            <!--
+
+                Formulář - Hlavička
+
+            -->
+
+
+            <h1>Vyhledávání Odletů z Pražského Letiště</h1>
+
+            <div th:if="${errorMessage}" class="error" th:text="${errorMessage}"></div>
+
+            <form th:action="@{/odlety-web}" method="get">
+                <div>
+                    <label for="letiste">Cílové letiště (kód):</label>
+                    <input type="text" id="letiste" name="letiste" th:value="${param.letiste}" placeholder="např. EDHL" required />
+                </div>
+
+                <div>
+                    <label for="od">Od (RRRRMMDDHHMM):</label>
+                    <input type="text" id="od" name="od" th:value="${param.od}" placeholder="202310280000" required pattern="\d{12}" title="Zadejte 12 číslic ve formátu RRRRMMDDHHMM"/>
+                </div>
+
+                <div>
+                    <label for="do">Do (RRRRMMDDHHMM):</label>
+                    <input type="text" id="do" name="do" th:value="${param.do}" placeholder="202310282359" required pattern="\d{12}" title="Zadejte 12 číslic ve formátu RRRRMMDDHHMM"/>
+                </div>
+
+                <button type="submit">Vyhledat</button>
+            </form>
+
+
+            <!--
+
+                Tabulka s výsledky
+
+            -->
+
+
+            <div th:if="${departures != null and not #lists.isEmpty(departures)}">
+                <h2>Nalezené Odlety</h2>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>ID ICAO24</th>
+                            <th>Čas odletu</th>
+                            <th>Cílové letiště</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+
+
+                        <tr th:each="flight : ${departures}">
+                            <td th:text="${flight.has('icao24') ? flight.get('icao24').asText('') : 'N/A'}"></td>
+                            <td th:text="${flight.has('lastSeen') ? flight.get('lastSeen').asText('') : (flight.has('firstSeen') ? flight.get('firstSeen').asText('') : 'N/A')}"></td>
+                            <td th:text="${flight.has('estArrivalAirport') ? flight.get('estArrivalAirport').asText('') : 'N/A'}"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div th:if="${departures != null and #lists.isEmpty(departures)}" class="no-results">
+                Pro zadaná kritéria nebyly nalezeny žádné odlety.
+            </div>
+
+            <div th:if="${departures == null and (errorMessage == null or errorMessage == '')}" class="no-results">
+                Zadejte kritéria vyhledávání a klikněte na "Vyhledat".
+            </div>
         </div>
-        <div>
-            <label for="od">Od (RRRRMMDDHHMM):</label>
-            <input type="text" id="od" name="od" th:value="${param.od}" placeholder="202310280000" required pattern="\d{12}" title="Zadejte 12 číslic ve formátu RRRRMMDDHHMM"/>
-        </div>
-        <div>
-            <label for="do">Do (RRRRMMDDHHMM):</label>
-            <input type="text" id="do" name="do" th:value="${param.do}" placeholder="202310282359" required pattern="\d{12}" title="Zadejte 12 číslic ve formátu RRRRMMDDHHMM"/>
-        </div>
-        <button type="submit">Vyhledat</button>
-    </form>
-
-    <div th:if="${departures != null and not #lists.isEmpty(departures)}">
-        <h2>Nalezené Odlety</h2>
-        <table>
-            <thead>
-            <tr>
-                <th>ID ICAO24</th>
-                <th>Čas odletu</th>
-                <th>Cílové letiště</th>
-            </tr>
-            </thead>
-            <tbody>
-
-
-            <tr th:each="flight : ${departures}">
-                <td th:text="${flight.has('icao24') ? flight.get('icao24').asText('') : 'N/A'}"></td>
-                <td th:text="${flight.has('lastSeen') ? flight.get('lastSeen').asText('') : (flight.has('firstSeen') ? flight.get('firstSeen').asText('') : 'N/A')}"></td>
-                <td th:text="${flight.has('estArrivalAirport') ? flight.get('estArrivalAirport').asText('') : 'N/A'}"></td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-    <div th:if="${departures != null and #lists.isEmpty(departures)}" class="no-results">
-        Pro zadaná kritéria nebyly nalezeny žádné odlety.
-    </div>
-
-    <div th:if="${departures == null and (errorMessage == null or errorMessage == '')}" class="no-results">
-        Zadejte kritéria vyhledávání a klikněte na "Vyhledat".
-    </div>
-</div>
-</body>
+    </body>
 </html>
